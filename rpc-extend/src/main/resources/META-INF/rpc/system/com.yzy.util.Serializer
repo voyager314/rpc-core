@@ -1,0 +1,4 @@
+hessian=com.yzy.util.HessianSerializer
+jdk=com.yzy.util.JdkSerializer
+json=com.yzy.util.JSONSerializer
+kryo=com.yzy.util.KryoSerializer

@@ -52,7 +52,7 @@ public class TcpServerHandler implements Handler<NetSocket> {
             }
         });*/
 
-        //处理tcp粘包半包问题
+        //装饰者模式，处理tcp粘包半包问题
         TcpBufferHandlerWrapper bufferHandlerWrapper=new TcpBufferHandlerWrapper(buffer -> {
             ProtocolMessage<RpcRequest> protocolMessage = null;
             try {

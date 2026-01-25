@@ -1,0 +1,3 @@
+roundRobin=com.yzy.loadbalancer.RoundRobinLB
+random=com.yzy.loadbalancer.RandomLB
+consistantHash=com.yzy.loadbalancer.ConsistentHashLB

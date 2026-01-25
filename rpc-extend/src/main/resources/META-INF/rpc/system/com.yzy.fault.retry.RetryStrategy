@@ -1,0 +1,2 @@
+no=com.yzy.fault.retry.NoRetry
+fixedInterval=com.yzy.fault.retry.FixedIntervalRetry

@@ -1,5 +1,7 @@
 package com.yzy.config;
 
+import com.yzy.constant.LoadBalancerConstant;
+import com.yzy.constant.RetryStrategyKey;
 import com.yzy.constant.SerializerKey;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,4 +50,14 @@ public class RpcConfig {
      * 全局注册中心配置
      */
     private RegistryConfig registryConfig=new RegistryConfig();
+
+    /**
+     * 全局负载均衡器
+     */
+    private String loadBalancer= LoadBalancerConstant.ROUND_ROBIN;
+
+    /**
+     * 全局重试策略配置
+     */
+    private String retryStrategy= RetryStrategyKey.FIXED_INTERVAL;
 }

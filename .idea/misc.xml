@@ -8,6 +8,9 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/my-rpc-springboot-starter/pom.xml" />
+        <option value="$PROJECT_DIR$/exam-provider-springboot/pom.xml" />
+        <option value="$PROJECT_DIR$/exam-consumer-springboot/pom.xml" />
       </list>
     </option>
   </component>

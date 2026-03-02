@@ -1,0 +1,2 @@
+failFast=com.yzy.fault.tolerant.FailFast
+failSafe=com.yzy.fault.tolerant.FailSafe

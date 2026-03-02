@@ -62,7 +62,7 @@ public class ServiceMetaInfo {
      */
     public String getServiceAddr(){
         if(!StrUtil.contains("http", serviceHost)){
-            return String.format("http//:%s:%s", serviceHost, servicePort);
+            return String.format("http://%s:%s", serviceHost, servicePort);
         }
         return String.format("%s:%s", serviceHost, servicePort);
     }

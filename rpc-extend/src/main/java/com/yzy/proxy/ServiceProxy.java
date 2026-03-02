@@ -5,6 +5,8 @@ import com.yzy.config.RpcConfig;
 import com.yzy.constant.RpcConstant;
 import com.yzy.fault.retry.RetryStrategy;
 import com.yzy.fault.retry.RetryStrategyFactory;
+import com.yzy.fault.tolerant.TolerantFactory;
+import com.yzy.fault.tolerant.TolerantStrategy;
 import com.yzy.loadbalancer.LoadBalancer;
 import com.yzy.loadbalancer.LoadBalancerFactory;
 import com.yzy.model.RpcRequest;
@@ -51,13 +53,20 @@ public class ServiceProxy implements InvocationHandler {
                 .serviceName(serviceName)
                 .parameterTypes(method.getParameterTypes())
                 .args(args).build();//构造请求
+        RpcResponse rpcResponse = null;
 
-        //获取重试策略
-        RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
-        RpcResponse rpcResponse = retryStrategy.doRetry(() -> {
-            //发送tcp请求
-            return VertxTcpClient.doRequest(rpcRequest, selected);
-        });
+        try {
+            //获取重试策略
+            RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
+            rpcResponse = retryStrategy.doRetry(() -> {
+                //发送tcp请求
+                return VertxTcpClient.doRequest(rpcRequest, selected);
+            });
+        } catch (Exception e) {
+            //开启容错
+            TolerantStrategy tolerantStrategy = TolerantFactory.getInstance(rpcConfig.getTolerantStrategy());
+            rpcResponse=tolerantStrategy.doTolerant(null,e);
+        }
         return rpcResponse.getData();//获取结果
     }
 }

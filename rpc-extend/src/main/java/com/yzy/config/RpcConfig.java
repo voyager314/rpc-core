@@ -3,6 +3,7 @@ package com.yzy.config;
 import com.yzy.constant.LoadBalancerConstant;
 import com.yzy.constant.RetryStrategyKey;
 import com.yzy.constant.SerializerKey;
+import com.yzy.constant.TolerantKey;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -59,5 +60,10 @@ public class RpcConfig {
     /**
      * 全局重试策略配置
      */
-    private String retryStrategy= RetryStrategyKey.FIXED_INTERVAL;
+    private String retryStrategy= RetryStrategyKey.NO;
+
+    /**
+     * 容错机制
+     */
+    private String tolerantStrategy= TolerantKey.FAIL_FAST;
 }

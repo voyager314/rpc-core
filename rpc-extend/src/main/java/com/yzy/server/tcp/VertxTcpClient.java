@@ -62,7 +62,7 @@ public class VertxTcpClient {
             //发送
             socket.write(encode);
 
-            //接收响应
+            //接收响应，异步回调
             TcpBufferHandlerWrapper bufferHandlerWrapper = new TcpBufferHandlerWrapper(
                     buffer -> {
                         ProtocolMessage<RpcResponse> responseMessage = null;
@@ -72,11 +72,14 @@ public class VertxTcpClient {
                             throw new RuntimeException(e);
                         }
                         responseFuture.complete(responseMessage.getBody());
+                        //将close执行时机移到响应回调lambda内执行，即responseFuture.complete之后
+                        //避免连接到达前被关闭
+                        netClient.close();
                     }
             );
             socket.handler(bufferHandlerWrapper);
         });
-        netClient.close();
+        //netClient.close();
         return responseFuture.get();
     }
     //public static void main(String[] args) {new VertxTcpClient().start();}

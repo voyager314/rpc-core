@@ -97,7 +97,7 @@ public class EtcdRegister implements Register {
     @Override
     public List<ServiceMetaInfo> serviceDiscovery(String serviceKey) {
         //优先查本地缓存，若不为空，则直接返回
-        List<ServiceMetaInfo> localRcords = localCache.readCache();
+        List<ServiceMetaInfo> localRcords = localCache.readCache(serviceKey);
         if (!CollUtil.isEmpty(localRcords)) {
             return localRcords;
         }
@@ -117,7 +117,7 @@ public class EtcdRegister implements Register {
                 })
                 .toList();
         //写入本地缓存
-        localCache.writeCache(serviceMetaInfos);
+        localCache.writeCache(serviceKey,serviceMetaInfos);
         return serviceMetaInfos;
     }
 
@@ -175,7 +175,8 @@ public class EtcdRegister implements Register {
                     response -> {
                         for (WatchEvent event : response.getEvents()) {
                             if (event.getEventType().equals(WatchEvent.EventType.DELETE))
-                                localCache.clearCache();
+                                //注意这里要把nodeKey转化为serviceKey
+                                localCache.clearCache(serviceNodeKey.substring(0, serviceNodeKey.lastIndexOf("/")+1));
                         }
                     });
         }

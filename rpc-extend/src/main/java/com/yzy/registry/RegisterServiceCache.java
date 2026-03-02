@@ -3,15 +3,20 @@ package com.yzy.registry;
 import com.yzy.model.ServiceMetaInfo;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 注册中心本地缓存
  */
 public class RegisterServiceCache {
+
+    //List<ServiceMetaInfo> serviceCache;
+
     /**
-     * 服务缓存
+     * 服务缓存，支持多服务缓存
      */
-    List<ServiceMetaInfo> serviceCache;
+    Map<String, List<ServiceMetaInfo>> serviceCache=new ConcurrentHashMap<>();
 
     /**
      * 写缓存
@@ -19,8 +24,8 @@ public class RegisterServiceCache {
      * @param newServiceCache
      * @return
      */
-    void writeCache(List<ServiceMetaInfo> newServiceCache) {
-        this.serviceCache = newServiceCache;
+    void writeCache(String serviceKey ,List<ServiceMetaInfo> newServiceCache) {
+        serviceCache.put(serviceKey,newServiceCache);
     }
 
     /**
@@ -28,14 +33,14 @@ public class RegisterServiceCache {
      *
      * @return
      */
-    List<ServiceMetaInfo> readCache() {
-        return this.serviceCache;
+    List<ServiceMetaInfo> readCache(String serviceKey) {
+        return serviceCache.get(serviceKey);
     }
 
     /**
      * 清空缓存
      */
-    void clearCache() {
-        this.serviceCache = null;
+    void clearCache(String serviceKey) {
+        serviceCache.remove(serviceKey);
     }
 }

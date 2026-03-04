@@ -27,8 +27,9 @@ public class ProtocolMsgDecoder {
         header.setType(buffer.getByte(3));
         header.setStatus(buffer.getByte(4));
         header.setRequestId(buffer.getLong(5));
+        //一个请求id占8byte，字节数组上就是从5-12下标的数据段，故body从13开始
         header.setBodyLength(buffer.getInt(13));
-        //请求头占17bit
+        //请求头占17byte
         byte[] bytes = buffer.getBytes(17, 17 + header.getBodyLength());
         ProtocolMsgSerializerEnum anEnum = ProtocolMsgSerializerEnum.getEnumByCode(header.getSerializer());
         if(anEnum==null)throw new RuntimeException("序列化协议不存在");

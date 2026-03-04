@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TestConsumer {
+
     @EnableRefrence(interfaceClass = IUserService.class)
     private IUserService userService;
+
     public void test(){
         User user = null;
         user=userService.getUserByName("mike");

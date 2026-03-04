@@ -19,7 +19,8 @@ public class RoundRobinLB implements LoadBalancer {
         int size=services.size();
         //只有一个无需轮询
         if(size==1)return services.get(0);
-        int index = counter.getAndIncrement() % size;
-        return services.get(index);
+        //使用&去掉符号位，避免溢出时出现负数导致数组越界
+        int index = counter.getAndIncrement() & Integer.MAX_VALUE;
+        return services.get(index%size);
     }
 }

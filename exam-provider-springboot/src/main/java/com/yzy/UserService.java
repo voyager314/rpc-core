@@ -12,4 +12,9 @@ public class UserService implements IUserService {
     public User getUserByName(String name) {
         return new User(name,21);
     }
+
+    @Override
+    public int add(int input, int num) {
+        return input + num;
+    }
 }

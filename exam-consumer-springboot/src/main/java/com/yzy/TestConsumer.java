@@ -18,4 +18,15 @@ public class TestConsumer {
             System.err.println("服务调用失败");
         }else System.out.println(user);
     }
+
+    public void test2(){
+        User user=null;
+        for(int i=0;i<1000;i++){
+            user=userService.getUserByName("mike"+i);
+            if(user==null){
+                System.err.println("服务调用失败");
+            }else System.out.println(user);
+        }
+    }
+
 }

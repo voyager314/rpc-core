@@ -6,11 +6,31 @@ import com.yzy.constant.RpcConstant;
 import com.yzy.registry.Register;
 import com.yzy.registry.RegisterFactory;
 import com.yzy.util.ConfigUtil;
+import io.vertx.core.Vertx;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class RpcApplication {
     private static volatile RpcConfig rpcConfig;//volatile多线程可见性
+    private static volatile Vertx vertx;
+
+    /**
+     * 全局共享 Vertx 实例（双检锁单例）
+     * 避免每次请求都创建新的 Vertx，导致线程池爆炸
+     */
+    public static Vertx getVertx() {
+        if (vertx == null) {
+            synchronized (RpcApplication.class) {
+                if (vertx == null) {
+                    vertx = Vertx.vertx();
+                    Runtime.getRuntime().addShutdownHook(
+                            new Thread(() -> vertx.close(), "vertx-shutdown")
+                    );
+                }
+            }
+        }
+        return vertx;
+    }
 
     /**
      * 自定义rpc配置

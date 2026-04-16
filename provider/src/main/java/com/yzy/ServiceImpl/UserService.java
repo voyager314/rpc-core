@@ -9,4 +9,9 @@ public class UserService implements IUserService {
         System.out.println("用户名称："+name);
         return new User(name,22);
     }
+
+    @Override
+    public int add(int input, int num) {
+        return 0;
+    }
 }

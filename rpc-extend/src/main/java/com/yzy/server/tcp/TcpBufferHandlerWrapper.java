@@ -36,7 +36,6 @@ public class TcpBufferHandlerWrapper implements Handler<Buffer> {
                     //缺失这一步将导致responseFuture.get在主线程无限阻塞等待
                     //也是测试时消费者无法获取远程调用结果，测试进程阻塞的唯一原因！
                     resultHandler.handle(result);
-                    System.out.println(result);
                     //重置
                     size=-1;
                     parser.fixedSizeMode(ProtocolConstant.MESSAGE_HEADER_LENGTH);

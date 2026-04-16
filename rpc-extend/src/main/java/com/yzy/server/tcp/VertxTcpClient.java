@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class VertxTcpClient {
     public static RpcResponse doRequest(RpcRequest rpcRequest, ServiceMetaInfo metaInfo) throws ExecutionException, InterruptedException {
-        Vertx vertx = Vertx.vertx();
+        Vertx vertx = RpcApplication.getVertx();
         //vertx 发送tcp请求
         CompletableFuture<RpcResponse> responseFuture = new CompletableFuture<>();
         NetClient netClient = vertx.createNetClient();
@@ -79,7 +79,8 @@ public class VertxTcpClient {
             );
             socket.handler(bufferHandlerWrapper);
         });
-        //netClient.close();
+        //由于Vertx的请求处理器是异步的，这里使用CompletableFuture转异步为同步
+        //阻塞，直到完成响应才会返回
         return responseFuture.get();
     }
     //public static void main(String[] args) {new VertxTcpClient().start();}

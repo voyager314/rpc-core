@@ -1,11 +1,12 @@
 package com.yzy.server.tcp;
 
+import com.yzy.RpcApplication;
 import io.vertx.core.Vertx;
 import io.vertx.core.net.NetServer;
 
 public class VertxTcpServer {
     public void start(int port) {
-        Vertx vertx = Vertx.vertx();
+        Vertx vertx = RpcApplication.getVertx();
         NetServer netServer = vertx.createNetServer();
 
         netServer.connectHandler(new TcpServerHandler());

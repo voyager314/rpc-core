@@ -24,6 +24,7 @@ public class RpcConsumerBootStrap implements BeanPostProcessor {
                 Object proxy = ServiceProxyFactory.getProxy(interfaceClass);
                 field.setAccessible(true);
                 try {
+                    //将该字段所指向的对象替换为代理对象
                     field.set(bean,proxy);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);

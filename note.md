@@ -350,3 +350,110 @@ Client 端发出 100 个并发 RPC 请求（100条连接）
 | **EventLoop 怎么"循环"读数据？** | 不主动循环，被动等待 Netty 的"数据可读"事件，每次到达触发一次 handler |
 | **RecordParser 的"循环"在哪？** | 在 `handleParsing()` 内的 `do-while`，在**单次 handle 调用内**同步把 buff 里所有够长度的记录都吐出去 |
 | **分两次处理的本质是什么？** | `output handler` 里的 `size` 字段是**跨事件的状态机**，第一次回调切换 `fixedSizeMode(bodyLen)`，第二次回调才真正完成整条报文，两次回调可能由**不同时刻的 EventLoop 事件**触发 |
+
+---
+
+## 10. VertxTcpClient 异步处理机制
+
+> 源码位置：`rpc-extend/src/main/java/com/yzy/server/tcp/VertxTcpClient.java`
+
+### 问题
+
+**`VertxTcpClient` 中真正实现请求异步处理的是什么，是 `CompletableFuture` 吗？**
+
+### 结论
+
+**不完全是 `CompletableFuture`**，这里实际上是两层机制协作，`CompletableFuture` 反而做的是**逆向操作**——将异步转回同步。
+
+---
+
+### 真正的异步核心：Vert.x 事件循环
+
+```java
+// ① 异步发起连接（非阻塞，立即返回，注册回调）
+netClient.connect(port, host, result -> {
+    // ③ 连接建立后，事件循环触发此回调
+    NetSocket socket = result.result();
+    socket.write(encode);             // 异步写出请求
+
+    // ④ 注册数据接收处理器（非阻塞，等待数据到达）
+    socket.handler(bufferHandlerWrapper); // 数据到达时触发
+});
+// ② connect() 注册完回调后立即返回，不阻塞
+```
+
+底层是 **Netty 的 NIO 事件循环**，所有 I/O 操作（建立连接、写数据、读数据）都是真正的非阻塞异步，由 Vert.x 的 Event Loop 线程驱动。
+
+---
+
+### `CompletableFuture` 实际做的是：异步转同步（阻塞桥接）
+
+```java
+CompletableFuture<RpcResponse> responseFuture = new CompletableFuture<>();
+
+// 在 Vert.x 回调内部：异步完成 → 写入结果通知 Future
+responseFuture.complete(responseMessage.getBody()); // ← 写入结果
+
+// 调用线程阻塞等待，直到 complete() 被调用才返回
+return responseFuture.get(); // ← 阻塞！
+```
+
+---
+
+### 各组件职责对比
+
+| 组件 | 实际作用 |
+|---|---|
+| **Vert.x Event Loop** | 真正的异步 I/O，驱动连接建立、数据收发 |
+| **`TcpBufferHandlerWrapper`** | 处理 TCP 粘包 / 拆包，保证读取到完整消息 |
+| **`CompletableFuture`** | 桥接工具：把 Vert.x 的回调异步模型，转换为调用方期望的同步返回值 |
+
+---
+
+### 完整数据流
+
+```
+调用线程                          Vert.x Event Loop 线程
+    │                                      │
+    │── netClient.connect() ─────────────> │  注册回调，立即返回
+    │── responseFuture.get() ──────────>   │  【调用线程阻塞在这里】
+    │                                      │
+    │                                      │── 连接成功 → 发送请求
+    │                                      │── 数据到达 → bufferHandlerWrapper 处理粘包
+    │                                      │── 解码响应报文
+    │                                      │── responseFuture.complete(response)
+    │                                      │
+    │<── 阻塞解除，拿到 response ──────────│
+```
+
+---
+
+### 注意事项：`netClient.close()` 的位置
+
+> `netClient.close()` 必须放在响应回调 lambda 内部、`responseFuture.complete()` 之后执行。
+> 若将 `close()` 移到回调外部，连接可能在响应到达前就被关闭，导致请求失败。
+
+```java
+// ✅ 正确：在收到响应后再关闭
+TcpBufferHandlerWrapper bufferHandlerWrapper = new TcpBufferHandlerWrapper(
+    buffer -> {
+        // ... 解码 ...
+        responseFuture.complete(responseMessage.getBody()); // 先完成
+        netClient.close();                                  // 再关闭
+    }
+);
+
+// ❌ 错误：在回调外关闭，连接可能提前断开
+socket.handler(bufferHandlerWrapper);
+netClient.close(); // 不要放这里
+```
+
+---
+
+### 小结
+
+| 问题 | 答案 |
+|------|------|
+| **真正实现异步的是什么？** | Vert.x Event Loop（底层 Netty NIO），通过回调驱动整个连接和收发过程 |
+| **`CompletableFuture` 的作用？** | 同步化桥接工具，将 Vert.x 异步回调转换为阻塞的同步返回值 |
+| **`CompletableFuture.get()` 的代价？** | 牺牲了 Vert.x 的全异步优势，调用线程在收到响应前一直阻塞 |

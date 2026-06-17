@@ -37,8 +37,8 @@ public class ConsistentHashLB implements LoadBalancer {
             }
         }
         long requestHash = Hashing.murmur3_128().hashString(params.toString(), StandardCharsets.UTF_8).asLong();
-        Map.Entry<Long, ServiceMetaInfo> entry = virtualNodes.ceilingEntry(requestHash);
-        if(entry==null)return virtualNodes.firstEntry().getValue();
+        Map.Entry<Long, ServiceMetaInfo> entry = virtualNodes.ceilingEntry(requestHash);//查找大等于当前key的最小key
+        if(entry==null)return virtualNodes.firstEntry().getValue();//查找最小key
         return entry.getValue();
     }
 

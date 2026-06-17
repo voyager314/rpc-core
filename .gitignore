@@ -11,6 +11,8 @@ target/
 *.iws
 *.iml
 *.ipr
+voyger314_contributions-1.md
+prompt.md
 
 ### Eclipse ###
 .apt_generated

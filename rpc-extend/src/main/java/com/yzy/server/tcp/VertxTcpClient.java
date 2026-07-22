@@ -64,7 +64,7 @@ public class VertxTcpClient {
         conn.getPendingRequests().addPending(requestId, responseFuture);
         conn.getSocket().write(encode);
 
-        //由于Vertx的请求处理器是异步的，这里使用CompletebleFuture转异步为同步
+        //由于Vertx的请求处理器是异步的，这里使用CompletableFuture转异步为同步
         //阻塞等待响应
         return responseFuture.get();
     }

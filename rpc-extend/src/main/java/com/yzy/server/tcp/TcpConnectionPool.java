@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * TCP 连接池（单例）
+ * 可复用的TCP连接（单例）
  * <p>
  * 以 host:port 为 key 管理长连接，实现连接复用和多路复用。
  * 每条连接上注册一个 TcpBufferHandlerWrapper 持续解码响应，

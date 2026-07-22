@@ -20,7 +20,7 @@ public class UnresolvedFutureMap {
     /**
      * requestId → 等待响应的 CompletableFuture，线程安全
      */
-    private final ConcurrentHashMap<Long, CompletableFuture<RpcResponse>> pendingRequests = new ConcurrentHashMap<>();
+    private final Map<Long, CompletableFuture<RpcResponse>> pendingRequests = new ConcurrentHashMap<>();
 
     /**
      * 发送请求前注册，将 requestId 与对应的 future 关联

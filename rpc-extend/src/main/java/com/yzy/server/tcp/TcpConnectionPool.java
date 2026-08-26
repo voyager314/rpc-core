@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,7 +34,7 @@ public class TcpConnectionPool {
     /**
      * endpoint(host:port) → 连接 future，value 为 CompletableFuture 以支持连接建立中的并发请求复用
      */
-    private final ConcurrentHashMap<String, CompletableFuture<PooledConnection>> connectionMap = new ConcurrentHashMap<>();
+    private final Map<String, CompletableFuture<PooledConnection>> connectionMap = new ConcurrentHashMap<>();
     private final NetClient netClient;
 
     private TcpConnectionPool() {

@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class RpcApplication {
-    private static volatile RpcConfig rpcConfig;//volatile多线程可见性
+    private static volatile RpcConfig rpcConfig;
     private static volatile Vertx vertx;
 
     /**

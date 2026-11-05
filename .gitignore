@@ -4,10 +4,10 @@ target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+.idea/
+.claude/
+.agents/
+
 *.iws
 *.iml
 *.ipr
@@ -33,6 +33,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 note_.md
+CLAUDE.md
+
 
 ### VS Code ###
 .vscode/
